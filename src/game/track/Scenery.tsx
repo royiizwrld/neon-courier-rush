@@ -45,7 +45,7 @@ export function Scenery() {
     }
     const tex = windowTexture();
     const bMat = new THREE.MeshStandardMaterial({ map: tex, emissiveMap: tex, emissive: "#ffffff", emissiveIntensity: 0.9, roughness: 0.8 });
-    const sMat = new THREE.MeshStandardMaterial({ color: "#ffffff", emissive: "#ffffff", emissiveIntensity: 2.2, toneMapped: false });
+    const sMat = new THREE.MeshBasicMaterial({ color: "#ffffff", toneMapped: false });
     const lMat = new THREE.MeshStandardMaterial({ color: "#333", emissive: "#ffe8b0", emissiveIntensity: 0 });
     return { items, bMat, sMat, lMat };
   }, []);
