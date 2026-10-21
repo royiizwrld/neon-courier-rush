@@ -111,7 +111,7 @@ export function attachInput(): () => void {
       fire("d", btn(13) || ay > 0.6, () => push("down"));
       fire("a", btn(0), () => (useGame.getState().phase === "playing" ? push("up") : primary()));
       fire("b", btn(1), () => push("down"));
-      fire("start", btn(9), () => primary(true) );
+      fire("start", btn(9), () => primary(useGame.getState().phase === "playing"));
       // X / triggers reserved for throwing once that power-up exists
     }
   };
