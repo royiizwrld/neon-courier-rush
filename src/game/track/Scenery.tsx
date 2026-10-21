@@ -81,7 +81,7 @@ export function Scenery() {
       <instancedMesh
         ref={(el) => {
           sRef.current = el;
-          if (el && !el.instanceColor) data.items.forEach((it, i) => el.setColorAt(i, new THREE.Color(it.signC)));
+          if (el && !el.instanceColor) { data.items.forEach((it, i) => el.setColorAt(i, new THREE.Color(it.signC))); data.sMat.needsUpdate = true; }
         }}
         args={[box, data.sMat, n]} frustumCulled={false}
       />
