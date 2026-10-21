@@ -38,7 +38,7 @@ function spawnRow(z: number) {
   if (lowLane >= 0 && Math.random() < 0.4) {
     for (let k = 0; k < 5; k++) spawnCoin((lowLane - 1) * LANE_W, 0.7 + Math.sin((k / 4) * Math.PI) * 1.2, z + 4 - k * 2);
   } else if (open.length && Math.random() < 0.75) {
-    const lane = open[Math.floor(Math.random() * open.length)] - 1;
+    const lane = (open[Math.floor(Math.random() * open.length)] ?? 1) - 1;
     const n = 4 + Math.floor(Math.random() * 4);
     for (let k = 0; k < n; k++) spawnCoin(lane * LANE_W, 0.7, z - 4 - k * 2.4);
   }
