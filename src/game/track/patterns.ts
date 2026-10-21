@@ -20,16 +20,18 @@ export function makeRow(rand: () => number, difficulty: number, avoidFreeLane = 
   for (let tries = 0; tries < 12; tries++) {
     const row: Cell[] = [null, null, null];
     const count = rand() < 0.25 + difficulty * 0.45 ? 2 : 1;
-    const lanes = [0, 1, 2];
+    const lanes: number[] = [0, 1, 2];
     for (let i = 2; i > 0; i--) {
       const j = Math.floor(rand() * (i + 1));
-      [lanes[i], lanes[j]] = [lanes[j], lanes[i]];
+      const tmp = lanes[i]!;
+      lanes[i] = lanes[j]!;
+      lanes[j] = tmp;
     }
     let moving = 0;
     for (let i = 0; i < count; i++) {
-      let t = pool[Math.floor(rand() * pool.length)];
+      let t: ObstacleType = pool[Math.floor(rand() * pool.length)] ?? "low";
       if (t === "moving" && moving++ > 0) t = "block";
-      row[lanes[i]] = t;
+      row[lanes[i]!] = t;
     }
     const r = row as Row;
     if (isFair(r, avoidFreeLane)) return r;
