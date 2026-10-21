@@ -26,13 +26,14 @@ export function Game() {
     const offPwa = setupPwa();
     const onVis = () => { if (document.hidden) useGame.getState().pause(); };
     document.addEventListener("visibilitychange", onVis);
-    window.addEventListener("blur", onVis);
-    return () => { off(); offPwa(); document.removeEventListener("visibilitychange", onVis); window.removeEventListener("blur", onVis); };
+    const onBlur = () => useGame.getState().pause();
+    window.addEventListener("blur", onBlur);
+    return () => { off(); offPwa(); document.removeEventListener("visibilitychange", onVis); window.removeEventListener("blur", onBlur); };
   }, []);
 
   return (
     <div className="game-root">
-      <Canvas frameloop="demand" tabIndex={0} dpr={[1, 2]} camera={{ position: [0, 3.6, 7], fov: 62, near: 0.1, far: 220 }} gl={{ antialias: true, powerPreference: "high-performance" }}>
+      <Canvas frameloop="demand" dpr={[1, 2]} camera={{ position: [0, 3.6, 7], fov: 62, near: 0.1, far: 220 }} gl={{ antialias: true, powerPreference: "high-performance" }}>
         <color attach="background" args={[SKY]} />
         <fog attach="fog" args={[SKY, 35, 145]} />
         <ambientLight intensity={0.35} color="#8a7bff" />
