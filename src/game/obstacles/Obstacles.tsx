@@ -45,7 +45,7 @@ export function Obstacles() {
       s.visible = o.active;
       if (!o.active) return;
       s.position.set(o.lane * LANE_W, 0, o.z);
-      for (let k = 0; k < 4; k++) s.children[k].visible = TYPES[k] === o.type;
+      for (let k = 0; k < 4; k++) s.children[k]!.visible = TYPES[k] === o.type;
     });
   });
 

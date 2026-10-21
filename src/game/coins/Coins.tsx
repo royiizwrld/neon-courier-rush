@@ -16,7 +16,7 @@ export function Coins() {
     if (!im) return;
     const t = state.clock.elapsedTime;
     for (let i = 0; i < n; i++) {
-      const c = run.coinPool[i];
+      const c = run.coinPool[i]!;
       if (!c.active) { dummy.scale.setScalar(0); }
       else {
         const p = c.pick;

@@ -25,7 +25,7 @@ export function attachInput(): () => void {
     if (a) { e.preventDefault(); if (!e.repeat) push(a); }
   };
   const onStart = (e: TouchEvent) => {
-    const t = e.touches[0];
+    const t = e.touches[0]; if (!t) return;
     sx = t.clientX; sy = t.clientY; fired = false; tracking = true;
     if (t.clientX < 90 && t.clientY < 90) {
       const now = performance.now();
@@ -36,7 +36,7 @@ export function attachInput(): () => void {
   const onMove = (e: TouchEvent) => {
     if (useGame.getState().phase === "playing") e.preventDefault();
     if (!tracking || fired) return;
-    const t = e.touches[0];
+    const t = e.touches[0]; if (!t) return;
     const dx = t.clientX - sx, dy = t.clientY - sy;
     if (Math.abs(dx) < SWIPE && Math.abs(dy) < SWIPE) return;
     fired = true;

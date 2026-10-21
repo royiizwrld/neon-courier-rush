@@ -17,7 +17,7 @@ function windowTexture() {
   x.fillStyle = "#0d0e1f"; x.fillRect(0, 0, 64, 128);
   for (let yy = 4; yy < 128; yy += 10) for (let xx = 4; xx < 64; xx += 10) {
     if (Math.random() < 0.45) {
-      x.fillStyle = ["#ffd27a", "#7fe9ff", "#ff8fc0"][Math.floor(Math.random() * 3)];
+      x.fillStyle = ["#ffd27a", "#7fe9ff", "#ff8fc0"][Math.floor(Math.random() * 3)] ?? "#ffd27a";
       x.fillRect(xx, yy, 5, 6);
     }
   }
