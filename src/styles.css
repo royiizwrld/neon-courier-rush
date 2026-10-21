@@ -142,3 +142,49 @@
     color: var(--color-foreground);
   }
 }
+
+/* ===== Neon Courier game UI ===== */
+:root {
+  --night: oklch(0.17 0.07 295);
+  --neon-pink: oklch(0.68 0.25 0);
+  --neon-cyan: oklch(0.85 0.15 205);
+  --coin: oklch(0.83 0.17 75);
+  --glass: oklch(0.17 0.07 295 / 0.72);
+  --font-display: "Bebas Neue", sans-serif;
+  --font-ui: "Barlow", sans-serif;
+}
+html, body { height: 100%; overflow: hidden; overscroll-behavior: none; touch-action: none; background: var(--night); }
+body { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; font-family: var(--font-ui); }
+.game-root { position: fixed; inset: 0; touch-action: none; }
+.ui-layer { position: absolute; inset: 0; pointer-events: none; color: var(--neon-cyan); }
+.ui-layer > * { pointer-events: auto; }
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem;
+  padding: env(safe-area-inset-top) 1.5rem env(safe-area-inset-bottom); background: none; border: 0; color: inherit; font: inherit; animation: fade-in .3s ease; }
+.screen-start { justify-content: space-between; padding-top: calc(env(safe-area-inset-top) + 12vh); padding-bottom: calc(env(safe-area-inset-bottom) + 6vh);
+  background: linear-gradient(to bottom, oklch(0.17 0.07 295 / 0.75), transparent 45%, oklch(0.17 0.07 295 / 0.8)); cursor: pointer; }
+.screen-dim { background: oklch(0.12 0.06 295 / 0.78); backdrop-filter: blur(4px); }
+.title-block { text-align: center; }
+.kicker { font-weight: 700; letter-spacing: .3em; text-transform: uppercase; font-size: .8rem; color: var(--coin); }
+.game-title { font-family: var(--font-display); font-size: clamp(4.5rem, 22vw, 9rem); line-height: .85; color: var(--neon-pink);
+  text-shadow: 0 0 12px var(--neon-pink), 0 0 40px oklch(0.68 0.25 0 / .6); }
+.tap-pulse { font-family: var(--font-display); font-size: 2.2rem; letter-spacing: .1em; color: var(--neon-cyan); text-shadow: 0 0 14px var(--neon-cyan); animation: pulse 1.4s ease-in-out infinite; }
+.stat-row { display: flex; gap: 2rem; font-size: 1.1rem; }
+.hint { font-size: .8rem; opacity: .7; }
+.coin-text { color: var(--coin); text-shadow: 0 0 8px oklch(0.83 0.17 75 / .6); }
+.hud { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: flex-start;
+  padding: calc(env(safe-area-inset-top) + 1rem) 1rem 0; pointer-events: none; }
+.hud > * { pointer-events: auto; }
+.hud-score { font-family: var(--font-display); font-size: 2.6rem; line-height: 1; color: var(--neon-cyan); text-shadow: 0 0 10px var(--neon-cyan); }
+.hud-coins { font-weight: 700; font-size: 1.2rem; }
+.icon-btn { width: 3rem; height: 3rem; border-radius: 999px; background: var(--glass); border: 2px solid var(--neon-cyan); color: var(--neon-cyan); font-size: 1rem; }
+.screen-heading { font-family: var(--font-display); font-size: 4.5rem; color: var(--neon-pink); text-shadow: 0 0 18px var(--neon-pink); line-height: 1; }
+.result-card { display: grid; gap: .5rem; min-width: 15rem; padding: 1rem 1.25rem; border: 1px solid oklch(0.85 0.15 205 / .4); border-radius: 1rem; background: var(--glass); }
+.result-card div { display: flex; justify-content: space-between; font-size: 1.1rem; }
+.result-card b { font-family: var(--font-display); font-size: 1.6rem; font-weight: 400; }
+.btn-neon, .btn-ghost { min-width: 15rem; padding: .8rem 1.5rem; border-radius: 999px; font-family: var(--font-display); font-size: 1.7rem; letter-spacing: .08em; transition: transform .15s; }
+.btn-neon { background: var(--neon-pink); color: var(--night); box-shadow: 0 0 24px oklch(0.68 0.25 0 / .7); }
+.btn-ghost { border: 2px solid var(--neon-cyan); color: var(--neon-cyan); background: transparent; }
+.btn-neon:active, .btn-ghost:active { transform: scale(.95); }
+.debug { position: absolute; bottom: calc(env(safe-area-inset-bottom) + .5rem); left: .5rem; font: 700 .85rem monospace; color: var(--coin); background: var(--glass); padding: .2rem .5rem; border-radius: .3rem; pointer-events: none; }
+@keyframes pulse { 0%,100% { opacity: 1; transform: scale(1);} 50% { opacity: .55; transform: scale(.96);} }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
