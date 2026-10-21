@@ -34,11 +34,13 @@ export function Scenery() {
   const lRef = useRef<THREE.InstancedMesh>(null);
   const data = useMemo(() => {
     const items = [];
-    for (let i = 0; i < PER_SIDE * 2; i++) {
+    // inner row (signs + lamps) and an outer row that fills wide/landscape screens
+    for (let i = 0; i < PER_SIDE * 4; i++) {
       const side = i % 2 ? 1 : -1;
+      const outer = i >= PER_SIDE * 2;
       items.push({
-        side, z: -Math.floor(i / 2) * SPACING,
-        x: side * (9 + Math.random() * 3),
+        side, outer, z: -Math.floor((i % (PER_SIDE * 2)) / 2) * SPACING - (outer ? SPACING / 2 : 0),
+        x: side * (outer ? 19 + Math.random() * 6 : 9 + Math.random() * 3),
         w: 5 + Math.random() * 3, h: 8 + Math.random() * 22, d: 6 + Math.random() * 2,
         signY: 3 + Math.random() * 5, signC: SIGN_COLORS[Math.floor(Math.random() * 4)],
       });
@@ -62,10 +64,10 @@ export function Scenery() {
       dummy.rotation.set(0, 0, 0);
       dummy.updateMatrix(); b.setMatrixAt(i, dummy.matrix);
       dummy.position.set(it.x - it.side * (it.w / 2 + 0.15), it.signY, z);
-      dummy.scale.set(0.15, 1.8, 2.6);
+      dummy.scale.set(it.outer ? 0 : 0.15, it.outer ? 0 : 1.8, it.outer ? 0 : 2.6);
       dummy.updateMatrix(); s.setMatrixAt(i, dummy.matrix);
       dummy.position.set(it.side * 5.2, 2.2, z + 3);
-      dummy.scale.set(0.12, 4.4, 0.12);
+      if (it.outer) dummy.scale.set(0, 0, 0); else dummy.scale.set(0.12, 4.4, 0.12);
       dummy.updateMatrix(); l.setMatrixAt(i, dummy.matrix);
     });
     b.instanceMatrix.needsUpdate = true;
@@ -86,9 +88,14 @@ export function Scenery() {
         args={[box, data.sMat, n]} frustumCulled={false}
       />
       <instancedMesh ref={lRef} args={[box, data.lMat, n]} frustumCulled={false} />
+      {/* wide ground so side areas never show empty sky on landscape screens */}
+      <mesh rotation-x={-Math.PI / 2} position={[0, -0.05, -70]}>
+        <planeGeometry args={[220, 200]} />
+        <meshStandardMaterial color="#0e0c22" roughness={0.9} />
+      </mesh>
       {/* distant skyline */}
       <mesh position={[0, 18, -160]}>
-        <planeGeometry args={[400, 60]} />
+        <planeGeometry args={[700, 80]} />
         <meshBasicMaterial color="#2a0f45" fog={false} />
       </mesh>
       <mesh position={[0, 30, -159]}>
