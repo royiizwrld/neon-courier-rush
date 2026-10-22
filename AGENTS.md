@@ -14,3 +14,4 @@
 - Per-frame state lives in the mutable `run` object (`src/game/runtime.ts`), not React state; zustand (`store.ts`) holds UI phase and persisted values, updated at ~10Hz to avoid re-renders.
 - One `GameLoop` useFrame owns simulation; render components only read `run`. Objects are pooled (fixed arrays / instanced meshes) — never allocate in the frame loop.
 - Row generation must go through `makeRow`/`isFair` in `track/patterns.ts`, which guarantee an open lane; keep its tests passing.
+- Input goes through `input/input.ts` (keyboard via remappable bindings in `settings.ts`, touch/mouse swipe, gamepad polling); Canvas uses frameloop="demand" driven by `loop/FrameDriver` so the FPS cap works.

@@ -6,3 +6,4 @@
 - [ ] Part 5: Polish & game feel
 - [ ] Part 6: Difficulty, settings & install (PWA)
 - [ ] Part 7: Accounts & online leaderboard (optional)
+- [x] Desktop/laptop support (camera, keyboard/mouse/gamepad, settings, fullscreen, install)
