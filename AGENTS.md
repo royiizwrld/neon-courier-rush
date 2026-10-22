@@ -15,3 +15,4 @@
 - One `GameLoop` useFrame owns simulation; render components only read `run`. Objects are pooled (fixed arrays / instanced meshes) — never allocate in the frame loop.
 - Row generation must go through `makeRow`/`isFair` in `track/patterns.ts`, which guarantee an open lane; keep its tests passing.
 - Input goes through `input/input.ts` (keyboard via remappable bindings in `settings.ts`, touch/mouse swipe, gamepad polling); Canvas uses frameloop="demand" driven by `loop/FrameDriver` so the FPS cap works.
+- `vite.config.ts` strips dev-only `data-tsd-source` props from `src/game/` files, because react-three-fiber crashes on dashed props it cannot resolve; keep it while the game uses R3F.
