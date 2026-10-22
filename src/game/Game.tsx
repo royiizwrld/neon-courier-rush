@@ -13,7 +13,10 @@ import { useGame } from "./store";
 import { useSettings } from "./settings";
 import { setupPwa } from "./pwa";
 import { FrameDriver } from "./loop/FrameDriver";
-import { DebugOverlay, GameOverScreen, HUD, PauseScreen, SettingsScreen, StartScreen } from "./ui/Screens";
+import { BiomeSky } from "./biomes/BiomeSky";
+import { Portal } from "./portals/Portal";
+import { PowerUps } from "./powerups/PowerUps";
+import { DebugOverlay, GameOverScreen, WarpFlash, HUD, PauseScreen, SettingsScreen, StartScreen } from "./ui/Screens";
 
 const SKY = "#120a2a";
 
@@ -52,12 +55,16 @@ export function Game() {
         <Obstacles />
         <Coins />
         <Player />
+        <Portal />
+        <PowerUps />
+        <BiomeSky />
       </Canvas>
       <div className="ui-layer">
         {phase === "start" && <StartScreen />}
         {(phase === "playing" || phase === "paused") && <HUD />}
         {phase === "paused" && <PauseScreen />}
         {phase === "over" && <GameOverScreen />}
+        <WarpFlash />
         <SettingsScreen />
         <DebugOverlay />
       </div>
