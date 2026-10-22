@@ -6,6 +6,8 @@ export type Phase = "start" | "playing" | "paused" | "over";
 interface GameState {
   phase: Phase; score: number; coins: number; best: number; totalCoins: number;
   newBest: boolean; fps: number; debug: boolean;
+  powers: { magnet: number; x2: number; jet: number; shield: boolean }; toast: string; toastKey: number;
+  setPowers: (p: GameState["powers"]) => void; showToast: (t: string) => void;
   load: () => void; start: () => void; pause: () => void; resume: () => void;
   end: (score: number, coins: number) => void; home: () => void;
   setHud: (score: number, coins: number) => void; setFps: (f: number) => void; toggleDebug: () => void;
@@ -18,13 +20,16 @@ function save(best: number, totalCoins: number) {
 
 export const useGame = create<GameState>((set, get) => ({
   phase: "start", score: 0, coins: 0, best: 0, totalCoins: 0, newBest: false, fps: 0, debug: false,
+  powers: { magnet: 0, x2: 0, jet: 0, shield: false }, toast: "", toastKey: 0,
+  setPowers: (powers) => set({ powers }),
+  showToast: (toast) => set({ toast, toastKey: get().toastKey + 1 }),
   load: () => {
     try {
       const d = JSON.parse(localStorage.getItem(KEY) || "{}");
       set({ best: d.best ?? 0, totalCoins: d.totalCoins ?? 0 });
     } catch { /* ignore */ }
   },
-  start: () => { resetRun(); set({ phase: "playing", score: 0, coins: 0, newBest: false }); },
+  start: () => { resetRun(); set({ phase: "playing", score: 0, coins: 0, newBest: false, powers: { magnet: 0, x2: 0, jet: 0, shield: false } }); get().showToast("Neon City"); },
   pause: () => get().phase === "playing" && set({ phase: "paused" }),
   resume: () => get().phase === "paused" && set({ phase: "playing" }),
   end: (score, coins) => {
