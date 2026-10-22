@@ -40,8 +40,7 @@ export const portalZ = () => run.distance - run.nextPortal;
 
 function spawnRow(z: number) {
   // keep the area around a portal clear so the gate is always reachable
-  const portalAt = portalZ() + (z - 0) * -1 * -1; // portal z in world space
-  if (Math.abs(z - portalAt) < PORTAL_CLEAR) return;
+  if (Math.abs(z - portalZ()) < PORTAL_CLEAR) return;
 
   const difficulty = Math.min(1, Math.max(0, (run.time - 5) / 60) + run.distance / 2500);
   const avoid = run.movingRows > 0 ? run.movingLane : -1;
