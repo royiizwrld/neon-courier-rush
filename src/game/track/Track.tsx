@@ -3,6 +3,8 @@ import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { LANE_W, SEG_COUNT, SEG_LEN } from "../constants";
 import { run } from "../runtime";
+import { biomeAt } from "../biomes/biomes";
+import { blend } from "../biomes/BiomeSky";
 
 function roadTexture() {
   const c = document.createElement("canvas");
@@ -36,7 +38,11 @@ export function Track() {
     curbM: new THREE.MeshStandardMaterial({ color: "#ff3d8b", emissive: "#ff3d8b", emissiveIntensity: 1.6 }),
     walkM: new THREE.MeshStandardMaterial({ color: "#1d1b33", roughness: 0.7 }),
   }), []);
-  useFrame(() => {
+  useFrame((_, dt) => {
+    const b = biomeAt(run.biome);
+    blend(r.curbM.color, b.curb, dt); blend(r.curbM.emissive, b.curb, dt);
+    blend(r.lineM.color, b.line, dt); blend(r.lineM.emissive, b.line, dt);
+    blend(r.roadM.color, b.road, dt);
     const off = run.distance % SEG_LEN;
     for (let i = 0; i < SEG_COUNT; i++) {
       const s = segs.current[i];

@@ -3,6 +3,8 @@ import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { DESPAWN_Z } from "../constants";
 import { run } from "../runtime";
+import { biomeAt } from "../biomes/biomes";
+import { blend } from "../biomes/BiomeSky";
 
 const PER_SIDE = 22;
 const SPACING = 8;
@@ -49,10 +51,16 @@ export function Scenery() {
     const bMat = new THREE.MeshStandardMaterial({ map: tex, emissiveMap: tex, emissive: "#ffffff", emissiveIntensity: 0.9, roughness: 0.8 });
     const sMat = new THREE.MeshBasicMaterial({ color: "#ffffff", toneMapped: false });
     const lMat = new THREE.MeshStandardMaterial({ color: "#333", emissive: "#ffe8b0", emissiveIntensity: 0 });
-    return { items, bMat, sMat, lMat };
+    const gMat = new THREE.MeshStandardMaterial({ color: "#0e0c22", roughness: 0.9 });
+    const skyM = new THREE.MeshBasicMaterial({ color: "#2a0f45", fog: false });
+    const sunM = new THREE.MeshBasicMaterial({ color: "#ff4fa0", fog: false });
+    return { items, bMat, sMat, lMat, gMat, skyM, sunM };
   }, []);
 
-  useFrame(() => {
+  useFrame((_, dt) => {
+    const bi = biomeAt(run.biome);
+    blend(data.bMat.color, bi.building, dt); blend(data.bMat.emissive, bi.building, dt);
+    blend(data.gMat.color, bi.ground, dt); blend(data.skyM.color, bi.skyline, dt); blend(data.sunM.color, bi.sun, dt);
     const b = bRef.current, s = sRef.current, l = lRef.current;
     if (!b || !s || !l) return;
     const off = run.distance;
@@ -89,18 +97,15 @@ export function Scenery() {
       />
       <instancedMesh ref={lRef} args={[box, data.lMat, n]} frustumCulled={false} />
       {/* wide ground so side areas never show empty sky on landscape screens */}
-      <mesh rotation-x={-Math.PI / 2} position={[0, -0.05, -70]}>
+      <mesh rotation-x={-Math.PI / 2} position={[0, -0.05, -70]} material={data.gMat}>
         <planeGeometry args={[220, 200]} />
-        <meshStandardMaterial color="#0e0c22" roughness={0.9} />
       </mesh>
       {/* distant skyline */}
-      <mesh position={[0, 18, -160]}>
+      <mesh position={[0, 18, -160]} material={data.skyM}>
         <planeGeometry args={[700, 80]} />
-        <meshBasicMaterial color="#2a0f45" fog={false} />
       </mesh>
-      <mesh position={[0, 30, -159]}>
+      <mesh position={[0, 30, -159]} material={data.sunM}>
         <circleGeometry args={[14, 32]} />
-        <meshBasicMaterial color="#ff4fa0" fog={false} />
       </mesh>
     </>
   );

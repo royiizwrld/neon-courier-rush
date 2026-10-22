@@ -6,8 +6,8 @@ export type Row = [Cell, Cell, Cell];
 
 /** Obstacle pool unlocked by difficulty (0..1). */
 export function poolFor(difficulty: number): ObstacleType[] {
-  if (difficulty < 0.12) return ["low", "block"];
-  if (difficulty < 0.35) return ["low", "high", "block"];
+  // slide-under barriers ("high") appear from the very first rows
+  if (difficulty < 0.2) return ["low", "high", "block", "high"];
   return ["low", "high", "block", "moving"];
 }
 
@@ -19,7 +19,7 @@ export function makeRow(rand: () => number, difficulty: number, avoidFreeLane = 
   const pool = poolFor(difficulty);
   for (let tries = 0; tries < 12; tries++) {
     const row: Cell[] = [null, null, null];
-    const count = rand() < 0.25 + difficulty * 0.45 ? 2 : 1;
+    const count = rand() < 0.4 + difficulty * 0.5 ? 2 : 1;
     const lanes: number[] = [0, 1, 2];
     for (let i = 2; i > 0; i--) {
       const j = Math.floor(rand() * (i + 1));
@@ -49,7 +49,7 @@ export function isFair(row: Row, avoidFreeLane = -1): boolean {
 
 /** Minimum distance between rows: grows with speed so reaction time stays constant. */
 export function minGap(speed: number): number {
-  return speed * 0.85 + 9;
+  return speed * 0.62 + 7;
 }
 
 export function computeScore(distance: number, coins: number, mult = 1): number {
