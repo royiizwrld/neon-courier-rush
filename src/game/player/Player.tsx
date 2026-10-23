@@ -61,13 +61,13 @@ export function Player() {
     const air = !run.grounded && !flying;
     const L = (k: string, x: number) => { const g = J[k]; if (g) g.rotation.x = x; };
     // legs: hip + knee
-    L("hipL", sliding ? -1.4 : flying ? 0.3 : sw * 0.85 - (air ? 0.9 : 0));
-    L("hipR", sliding ? -1.2 : flying ? 0.1 : -sw * 0.85 + (air ? 0.2 : 0));
+    L("hipL", sliding ? 0.15 : flying ? 0.3 : sw * 0.85 - (air ? 0.9 : 0));
+    L("hipR", sliding ? 0.45 : flying ? 0.1 : -sw * 0.85 + (air ? 0.2 : 0));
     L("kneeL", sliding ? 0.2 : flying ? 0.5 : Math.max(0, -Math.cos(ph)) * 1.3 + (air ? 1.1 : 0.1));
     L("kneeR", sliding ? 0.6 : flying ? 0.6 : Math.max(0, Math.cos(ph)) * 1.3 + (air ? 0.4 : 0.1));
     // arms: shoulder + elbow
-    L("shL", sliding ? 0.6 : flying ? -0.4 : -sw * 0.9 - (air ? 2.6 : 0));
-    L("shR", sliding ? 0.6 : flying ? -0.4 : sw * 0.9 - (air ? 2.6 : 0));
+    L("shL", sliding ? -0.4 : flying ? -0.4 : -sw * 0.9 - (air ? 2.6 : 0));
+    L("shR", sliding ? -2.2 : flying ? -0.4 : sw * 0.9 - (air ? 2.6 : 0));
     L("elL", -1.1 - (air ? 0 : 0.2));
     L("elR", -1.1 - (air ? 0 : 0.2));
     if (shadow.current) {
