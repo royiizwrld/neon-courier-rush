@@ -5,6 +5,21 @@ import { LANE_W } from "../constants";
 import { run } from "../runtime";
 import type { ObstacleType } from "../track/patterns";
 
+function slideTexture() {
+  const c = document.createElement("canvas");
+  c.width = 256; c.height = 128;
+  const x = c.getContext("2d")!;
+  x.fillStyle = "#1a0820"; x.fillRect(0, 0, 256, 128);
+  x.fillStyle = "#ff3d8b";
+  for (let i = -2; i < 12; i++) { x.beginPath(); x.moveTo(i * 28, 0); x.lineTo(i * 28 + 14, 0); x.lineTo(i * 28 - 10, 22); x.lineTo(i * 28 - 24, 22); x.fill(); }
+  for (let i = -2; i < 12; i++) { x.beginPath(); x.moveTo(i * 28, 106); x.lineTo(i * 28 + 14, 106); x.lineTo(i * 28 - 10, 128); x.lineTo(i * 28 - 24, 128); x.fill(); }
+  x.fillStyle = "#ffffff"; x.font = "bold 54px sans-serif"; x.textAlign = "center"; x.textBaseline = "middle";
+  x.fillText("▼ DUCK ▼", 128, 66);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
 const TYPES: ObstacleType[] = ["low", "high", "block", "moving"];
 
 /** Pooled obstacle slots; each slot holds every type model and toggles visibility. */
@@ -26,7 +41,8 @@ export function Obstacles() {
       m: {
         post: mat("#333a55"),
         stripe: mat("#ffcc00", "#ffaa00", 1.2),
-        high: mat("#ff3d8b", "#ff3d8b", 2),
+        high: (() => { const t = slideTexture(); return new THREE.MeshStandardMaterial({ map: t, emissiveMap: t, emissive: "#ffffff", emissiveIntensity: 1.4, roughness: 0.4 }); })(),
+        glow: mat("#ff3d8b", "#ff3d8b", 3),
         van: mat("#2a3a6a"),
         vanLine: mat("#00e5ff", "#00e5ff", 2),
         car: mat("#ffb020"),
@@ -62,9 +78,11 @@ export function Obstacles() {
           </group>
           {/* high barrier */}
           <group>
-            <mesh geometry={g.post} material={m.post} position={[-0.9, 1.25, 0]} scale={[1, 2.5, 1]} />
-            <mesh geometry={g.post} material={m.post} position={[0.9, 1.25, 0]} scale={[1, 2.5, 1]} />
-            <mesh geometry={g.bar} material={m.high} position={[0, 1.45, 0]} scale={[1, 2.2, 1]} />
+            <mesh geometry={g.post} material={m.post} position={[-1.02, 1.4, 0]} scale={[1.8, 2.8, 1.8]} />
+            <mesh geometry={g.post} material={m.post} position={[1.02, 1.4, 0]} scale={[1.8, 2.8, 1.8]} />
+            <mesh material={m.high} position={[0, 1.95, 0]}><boxGeometry args={[2.0, 1.4, 0.18]} /></mesh>
+            <mesh geometry={g.bar} material={m.glow} position={[0, 1.22, 0]} scale={[1.08, 0.35, 1.8]} />
+            <mesh geometry={g.bar} material={m.glow} position={[0, 2.68, 0]} scale={[1.08, 0.35, 1.8]} />
           </group>
           {/* parked van */}
           <group>
