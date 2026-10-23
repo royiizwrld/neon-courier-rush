@@ -76,7 +76,9 @@ export function HUD() {
       <div>
         <div className="hud-score">{score}</div>
         <div className="coin-text hud-coins">● {coins}</div>
+        <PowerBadges />
       </div>
+      <BiomeToast />
       <div className="hud-btns">
         <button className="icon-btn" onClick={toggleMute} aria-label={muted ? "Unmute" : "Mute"}>{muted ? "🔇" : "🔊"}</button>
         {fsSupported() && <button className="icon-btn" onClick={toggleFullscreen} aria-label="Toggle fullscreen">{fs ? "🗗" : "⛶"}</button>}
@@ -84,6 +86,38 @@ export function HUD() {
       </div>
     </div>
   );
+}
+
+const POWER_INFO = [
+  { k: "magnet", icon: "🧲", label: "Magnet", max: 10 },
+  { k: "x2", icon: "✖2", label: "Double score", max: 12 },
+  { k: "jet", icon: "🚀", label: "Jetpack", max: 6 },
+] as const;
+
+function PowerBadges() {
+  const p = useGame((s) => s.powers);
+  return (
+    <div className="powers">
+      {p.shield && <div className="power"><span>🛡</span><i style={{ width: "100%" }} /></div>}
+      {POWER_INFO.filter((x) => p[x.k] > 0).map((x) => (
+        <div className="power" key={x.k} title={x.label}><span>{x.icon}</span><i style={{ width: `${(p[x.k] / x.max) * 100}%` }} /></div>
+      ))}
+    </div>
+  );
+}
+
+function BiomeToast() {
+  const { toast, toastKey } = useGame();
+  if (!toast) return null;
+  return <div className="biome-toast" key={toastKey}><small>Entering</small>{toast}</div>;
+}
+
+/** Full-screen flash when passing through a portal. */
+export function WarpFlash() {
+  const k = useGame((s) => s.toastKey);
+  const phase = useGame((s) => s.phase);
+  if (phase !== "playing" || k < 2) return null;
+  return <div className="warp-flash" key={k} />;
 }
 
 export function PauseScreen() {
