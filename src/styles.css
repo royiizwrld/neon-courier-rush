@@ -237,3 +237,13 @@ body { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color
   .hint { display: none; }
   .settings-panel { margin: 0; }
 }
+
+/* Power-ups, biome toast, portal flash */
+.powers { display: flex; gap: .4rem; margin-top: .5rem; }
+.power { position: relative; width: 2.6rem; height: 2.6rem; border-radius: .7rem; background: var(--glass); border: 1px solid oklch(0.85 0.15 205 / .5); display: grid; place-items: center; overflow: hidden; font-size: 1.2rem; font-weight: 700; color: var(--coin); }
+.power i { position: absolute; left: 0; bottom: 0; height: 4px; background: var(--neon-cyan); box-shadow: 0 0 8px var(--neon-cyan); transition: width .1s linear; }
+.biome-toast { position: absolute; left: 50%; top: 22%; transform: translateX(-50%); text-align: center; font-family: var(--font-display); font-size: clamp(2.2rem, 7vh, 3.6rem); color: var(--neon-pink); text-shadow: 0 0 18px var(--neon-pink); pointer-events: none; white-space: nowrap; animation: toast 2.6s ease forwards; }
+.biome-toast small { display: block; font-size: .4em; letter-spacing: .3em; color: var(--coin); text-shadow: none; }
+@keyframes toast { 0% { opacity: 0; transform: translate(-50%, 20px) scale(.9); } 12%, 75% { opacity: 1; transform: translate(-50%, 0) scale(1); } 100% { opacity: 0; transform: translate(-50%, -10px); } }
+.warp-flash { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle, oklch(1 0 0 / .95), oklch(0.85 0.15 205 / .6) 40%, transparent 75%); animation: warp .9s ease-out forwards; }
+@keyframes warp { 0% { opacity: 1; } 100% { opacity: 0; } }
