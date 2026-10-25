@@ -4,6 +4,7 @@ import * as THREE from "three";
 import { LANE_W } from "../constants";
 import { run } from "../runtime";
 import type { ObstacleType } from "../track/patterns";
+import { biomeAt, KINDS } from "../biomes/biomes";
 
 function slideTexture() {
   const c = document.createElement("canvas");
@@ -37,6 +38,12 @@ export function Obstacles() {
         car: new THREE.BoxGeometry(1.8, 0.9, 3.9),
         light: new THREE.BoxGeometry(0.4, 0.15, 0.05),
         wheel: new THREE.CylinderGeometry(0.35, 0.35, 0.2, 10),
+        log: new THREE.CylinderGeometry(0.36, 0.4, 2.3, 9),
+        cyl: new THREE.CylinderGeometry(0.5, 0.5, 1, 12),
+        rock: new THREE.DodecahedronGeometry(1, 0),
+        ball: new THREE.IcosahedronGeometry(1, 1),
+        cone: new THREE.ConeGeometry(1, 1, 6),
+        box: new THREE.BoxGeometry(1, 1, 1),
       },
       m: {
         post: mat("#333a55"),
@@ -50,6 +57,21 @@ export function Obstacles() {
         head: mat("#ffffff", "#fff6c0", 4),
         tail: mat("#ff2030", "#ff2030", 3),
         wheel: mat("#111"),
+        bark: new THREE.MeshStandardMaterial({ color: "#6a4426", roughness: 0.95, flatShading: true }),
+        ring: new THREE.MeshStandardMaterial({ color: "#c9a26a", roughness: 0.9 }),
+        moss: new THREE.MeshStandardMaterial({ color: "#4f8a34", roughness: 1, flatShading: true }),
+        leaf: new THREE.MeshStandardMaterial({ color: "#3a7a36", roughness: 1, flatShading: true }),
+        stone: new THREE.MeshStandardMaterial({ color: "#7a7f74", roughness: 0.95, flatShading: true }),
+        rune: mat("#9dffcf", "#5affb0", 2),
+        pipe: new THREE.MeshStandardMaterial({ color: "#5c6b55", metalness: 0.7, roughness: 0.4 }),
+        rust: new THREE.MeshStandardMaterial({ color: "#7a4424", metalness: 0.5, roughness: 0.6 }),
+        slime: mat("#6cff4a", "#4aff2a", 2),
+        hazard: mat("#ffd23d", "#ffb000", 0.8),
+        ice: new THREE.MeshStandardMaterial({ color: "#aeeaff", emissive: "#4fc8ff", emissiveIntensity: 0.5, roughness: 0.1, transparent: true, opacity: 0.88, flatShading: true }),
+        snow: new THREE.MeshStandardMaterial({ color: "#f4fbff", roughness: 1, flatShading: true }),
+        redrock: new THREE.MeshStandardMaterial({ color: "#a84a2a", roughness: 0.95, flatShading: true }),
+        sand: new THREE.MeshStandardMaterial({ color: "#c8783e", roughness: 1, flatShading: true }),
+        lava: mat("#ff5a1a", "#ff4a00", 2.5),
       },
     };
   }, []);
@@ -61,7 +83,11 @@ export function Obstacles() {
       s.visible = o.active;
       if (!o.active) return;
       s.position.set(o.lane * LANE_W, 0, o.z);
-      for (let k = 0; k < 4; k++) s.children[k]!.visible = TYPES[k] === o.type;
+      const active = KINDS.indexOf(biomeAt(run.biome).kind) * 4 + TYPES.indexOf(o.type);
+      for (let k = 0; k < s.children.length; k++) s.children[k]!.visible = k === active;
+      // rolling hazards (boulders, drums) spin as they come at the player
+      const roll = active >= 4 && o.type === "moving" ? s.children[active]!.children[0] : undefined;
+      if (roll) roll.rotation.x = o.z * 0.9;
     });
   });
 
@@ -101,6 +127,100 @@ export function Obstacles() {
             <mesh geometry={g.wheel} material={m.wheel} position={[0.9, 0.35, 1.2]} rotation-z={Math.PI / 2} />
             <mesh geometry={g.wheel} material={m.wheel} position={[-0.9, 0.35, -1.2]} rotation-z={Math.PI / 2} />
             <mesh geometry={g.wheel} material={m.wheel} position={[0.9, 0.35, -1.2]} rotation-z={Math.PI / 2} />
+          </group>
+          {/* ===== MISTY FOREST ===== */}
+          <group>{/* fallen log */}
+            <mesh geometry={g.log} material={m.bark} position={[0, 0.38, 0]} rotation-z={Math.PI / 2} />
+            <mesh geometry={g.cyl} material={m.ring} position={[1.16, 0.38, 0]} rotation-z={Math.PI / 2} scale={[0.68, 0.02, 0.68]} />
+            <mesh geometry={g.rock} material={m.moss} position={[-0.3, 0.7, 0]} scale={[0.6, 0.18, 0.4]} />
+          </group>
+          <group>{/* low branch with hanging leaves */}
+            <mesh geometry={g.log} material={m.bark} position={[0, 1.95, 0]} rotation-z={Math.PI / 2 + 0.06} scale={[1.1, 1.05, 1.1]} />
+            <mesh geometry={g.log} material={m.bark} position={[-1.3, 1.3, 0]} scale={[0.9, 1.15, 0.9]} />
+            <mesh geometry={g.log} material={m.bark} position={[1.3, 1.3, 0]} scale={[0.9, 1.15, 0.9]} />
+            <mesh geometry={g.rock} material={m.leaf} position={[-0.5, 2.4, 0]} scale={[0.8, 0.45, 0.6]} />
+            <mesh geometry={g.rock} material={m.leaf} position={[0.6, 2.35, 0.1]} scale={[0.7, 0.4, 0.6]} />
+            <mesh geometry={g.cone} material={m.leaf} position={[0.1, 1.55, 0]} rotation-x={Math.PI} scale={[0.2, 0.5, 0.2]} />
+          </group>
+          <group>{/* standing stone */}
+            <mesh geometry={g.rock} material={m.stone} position={[0, 1.3, 0]} scale={[0.9, 1.5, 1.2]} />
+            <mesh geometry={g.box} material={m.rune} position={[0, 1.5, 1.05]} scale={[0.25, 0.7, 0.05]} />
+            <mesh geometry={g.rock} material={m.moss} position={[0, 2.5, 0]} scale={[0.7, 0.25, 0.8]} />
+          </group>
+          <group>{/* rolling boulder */}
+            <group position={[0, 1, 0]}>
+              <mesh geometry={g.rock} material={m.stone} scale={0.98} />
+              <mesh geometry={g.rock} material={m.moss} position={[0, 0.7, 0.3]} scale={[0.5, 0.3, 0.5]} />
+            </group>
+          </group>
+          {/* ===== TOXIC SEWERS ===== */}
+          <group>{/* leaking pipe */}
+            <mesh geometry={g.cyl} material={m.pipe} position={[0, 0.4, 0]} rotation-z={Math.PI / 2} scale={[0.6, 2.2, 0.6]} />
+            <mesh geometry={g.cyl} material={m.rust} position={[0, 0.4, 0]} rotation-z={Math.PI / 2} scale={[0.72, 0.2, 0.72]} />
+            <mesh geometry={g.cyl} material={m.slime} position={[0.3, 0.02, 0.6]} scale={[1.2, 0.03, 0.8]} />
+          </group>
+          <group>{/* overhead steam pipe */}
+            <mesh geometry={g.cyl} material={m.pipe} position={[0, 1.95, 0]} rotation-z={Math.PI / 2} scale={[0.75, 2.4, 0.75]} />
+            <mesh geometry={g.box} material={m.rust} position={[-1.1, 1.2, 0]} scale={[0.2, 2.4, 0.3]} />
+            <mesh geometry={g.box} material={m.rust} position={[1.1, 1.2, 0]} scale={[0.2, 2.4, 0.3]} />
+            <mesh geometry={g.box} material={m.hazard} position={[0, 1.55, 0.3]} scale={[1.8, 0.08, 0.05]} />
+            <mesh geometry={g.cone} material={m.slime} position={[0.3, 1.45, 0]} rotation-x={Math.PI} scale={[0.08, 0.2, 0.08]} />
+          </group>
+          <group>{/* chemical tank */}
+            <mesh geometry={g.cyl} material={m.rust} position={[0, 1.2, 0]} scale={[1.8, 2.4, 1.8]} />
+            <mesh geometry={g.cyl} material={m.slime} position={[0, 1.2, 0]} scale={[1.84, 0.3, 1.84]} />
+            <mesh geometry={g.box} material={m.hazard} position={[0, 1.9, 0.92]} scale={[0.6, 0.4, 0.03]} />
+          </group>
+          <group>{/* rolling waste drum */}
+            <group position={[0, 0.75, 0]}>
+              <mesh geometry={g.cyl} material={m.hazard} rotation-z={Math.PI / 2} scale={[1.5, 1.8, 1.5]} />
+              <mesh geometry={g.cyl} material={m.rust} rotation-z={Math.PI / 2} scale={[1.55, 0.25, 1.55]} />
+            </group>
+          </group>
+          {/* ===== FROST CAVERNS ===== */}
+          <group>{/* ice ridge */}
+            <mesh geometry={g.rock} material={m.snow} position={[0, 0.2, 0]} scale={[1.1, 0.35, 0.6]} />
+            <mesh geometry={g.cone} material={m.ice} position={[-0.5, 0.35, 0]} scale={[0.3, 0.7, 0.3]} />
+            <mesh geometry={g.cone} material={m.ice} position={[0.2, 0.33, 0.1]} scale={[0.25, 0.65, 0.25]} />
+            <mesh geometry={g.cone} material={m.ice} position={[0.7, 0.3, 0]} scale={[0.25, 0.6, 0.25]} />
+          </group>
+          <group>{/* hanging icicles */}
+            <mesh geometry={g.box} material={m.snow} position={[0, 2.5, 0]} scale={[2.3, 0.5, 0.6]} />
+            <mesh geometry={g.box} material={m.ice} position={[-1.1, 1.3, 0]} scale={[0.25, 2.6, 0.4]} />
+            <mesh geometry={g.box} material={m.ice} position={[1.1, 1.3, 0]} scale={[0.25, 2.6, 0.4]} />
+            {[-0.7, -0.25, 0.2, 0.65].map((x, k) => (
+              <mesh key={k} geometry={g.cone} material={m.ice} position={[x, 1.9, 0]} rotation-x={Math.PI} scale={[0.17, 0.75 + (k % 2) * 0.15, 0.17]} />
+            ))}
+          </group>
+          <group>{/* glacier block */}
+            <mesh geometry={g.box} material={m.ice} position={[0, 1.2, 0]} scale={[1.8, 2.4, 1.8]} rotation-y={0.2} />
+            <mesh geometry={g.rock} material={m.snow} position={[0, 2.45, 0]} scale={[1, 0.25, 1]} />
+          </group>
+          <group>{/* sliding ice chunk */}
+            <group position={[0, 0.9, 0]}>
+              <mesh geometry={g.rock} material={m.ice} scale={[0.95, 0.9, 0.95]} />
+            </group>
+          </group>
+          {/* ===== EMBER CANYON ===== */}
+          <group>{/* rock slab with lava crack */}
+            <mesh geometry={g.rock} material={m.redrock} position={[0, 0.3, 0]} scale={[1.1, 0.4, 0.5]} />
+            <mesh geometry={g.box} material={m.lava} position={[0, 0.45, 0.36]} scale={[1.4, 0.06, 0.05]} />
+          </group>
+          <group>{/* rock arch */}
+            <mesh geometry={g.rock} material={m.redrock} position={[-1.15, 1.2, 0]} scale={[0.4, 1.4, 0.6]} />
+            <mesh geometry={g.rock} material={m.redrock} position={[1.15, 1.2, 0]} scale={[0.4, 1.4, 0.6]} />
+            <mesh geometry={g.rock} material={m.sand} position={[0, 2.2, 0]} scale={[1.6, 0.5, 0.6]} />
+          </group>
+          <group>{/* canyon boulder */}
+            <mesh geometry={g.rock} material={m.redrock} position={[0, 1.2, 0]} scale={[1, 1.3, 1.3]} />
+            <mesh geometry={g.rock} material={m.sand} position={[0.2, 0.4, 0.5]} scale={[0.7, 0.5, 0.7]} />
+          </group>
+          <group>{/* rolling lava rock */}
+            <group position={[0, 0.95, 0]}>
+              <mesh geometry={g.ball} material={m.redrock} scale={0.92} />
+              <mesh geometry={g.ball} material={m.lava} scale={[0.95, 0.12, 0.95]} />
+              <mesh geometry={g.ball} material={m.lava} scale={[0.12, 0.95, 0.95]} />
+            </group>
           </group>
         </group>
       ))}

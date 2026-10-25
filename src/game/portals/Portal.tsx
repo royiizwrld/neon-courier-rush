@@ -25,7 +25,7 @@ export function Portal() {
     if (!g.visible) return;
     g.position.z = z;
     const next = biomeAt(run.biome + 1);
-    r.ring.color.copy(next.curb); r.ring.emissive.copy(next.curb);
+    r.ring.color.copy(next.sun); r.ring.emissive.copy(next.sun);
     r.inner.color.copy(next.line);
     const t = state.clock.elapsedTime;
     if (swirl.current) swirl.current.rotation.z = -t * 2.5;
