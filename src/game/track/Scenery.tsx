@@ -48,7 +48,6 @@ function buildLayers(): Record<BiomeKind, Layer[]> {
   const oct = new THREE.OctahedronGeometry(1, 0);
   const ball = new THREE.SphereGeometry(1, 8, 6);
   const tex = windowTexture();
-  const hide = () => false;
   const P = (x: number, y: number, z: number, sx: number, sy: number, sz: number, rx = 0, ry = 0, rz = 0) => {
     dummy.position.set(x, y, z); dummy.scale.set(sx, sy, sz); dummy.rotation.set(rx, ry, rz); return true;
   };
@@ -124,7 +123,6 @@ function buildLayers(): Record<BiomeKind, Layer[]> {
         !it.outer && i % 2 === 1 && P(it.side * 5.4, 0.03, z, 0.15, 0.04, 4 + it.r1 * 3, 0, it.r2 - 0.5) },
     ],
   } satisfies Record<BiomeKind, Layer[]>;
-  void hide;
 }
 
 /** Per-world instanced scenery on both sides; only the current world's set is visible and updated. */
