@@ -1,21 +1,28 @@
 import * as THREE from "three";
 
+/** Which scenery set and obstacle models a biome uses. */
+export type BiomeKind = "city" | "forest" | "sewer" | "ice" | "canyon";
+export const KINDS: BiomeKind[] = ["city", "forest", "sewer", "ice", "canyon"];
+
 export interface Biome {
   name: string;
+  kind: BiomeKind;
+  /** emissive strength of curbs / lane lines (neon city glows, forest barely) */
+  glow: number;
   sky: THREE.Color; fog: THREE.Color; road: THREE.Color; curb: THREE.Color; line: THREE.Color;
-  building: THREE.Color; ground: THREE.Color; sun: THREE.Color; skyline: THREE.Color;
+  walk: THREE.Color; ground: THREE.Color; sun: THREE.Color; skyline: THREE.Color;
 }
 const c = (h: string) => new THREE.Color(h);
-const b = (name: string, sky: string, curb: string, line: string, building: string, ground: string, sun: string, skyline: string, road = "#ffffff"): Biome =>
-  ({ name, sky: c(sky), fog: c(sky), road: c(road), curb: c(curb), line: c(line), building: c(building), ground: c(ground), sun: c(sun), skyline: c(skyline) });
+const b = (name: string, kind: BiomeKind, glow: number, sky: string, curb: string, line: string, road: string, walk: string, ground: string, sun: string, skyline: string): Biome =>
+  ({ name, kind, glow, sky: c(sky), fog: c(sky), road: c(road), curb: c(curb), line: c(line), walk: c(walk), ground: c(ground), sun: c(sun), skyline: c(skyline) });
 
-/** Visual themes. Portals cycle through these in order. */
+/** Worlds. Portals cycle through these in order. */
 export const BIOMES: Biome[] = [
-  b("Neon City", "#120a2a", "#ff3d8b", "#00e5ff", "#ffffff", "#0e0c22", "#ff4fa0", "#2a0f45"),
-  b("Sunset Docks", "#3a1530", "#ff8a3d", "#ffd23d", "#ffb08a", "#20121c", "#ffb347", "#6a2340", "#ffd9c0"),
-  b("Frost Grid", "#0a2236", "#7fe9ff", "#ffffff", "#a8e6ff", "#0c1e2c", "#d8f6ff", "#1a4a6a", "#cfeeff"),
-  b("Toxic Sector", "#0d1f0d", "#7dff6a", "#d4ff3d", "#9dff8a", "#0a160a", "#b6ff3d", "#1d3d16", "#d8ffd0"),
-  b("Ember Rail", "#240808", "#ff4a1d", "#ffb020", "#ff9a6a", "#1a0806", "#ff6a2a", "#4a1208", "#ffc8b0"),
+  b("Neon City", "city", 2, "#120a2a", "#ff3d8b", "#00e5ff", "#3a3c5c", "#1d1b33", "#0e0c22", "#ff4fa0", "#2a0f45"),
+  b("Misty Forest", "forest", 0.15, "#5d7a6e", "#5a4430", "#c9b98a", "#8a6a48", "#3f5a2c", "#2f4a24", "#f3e6b0", "#3c5a4a"),
+  b("Toxic Sewers", "sewer", 1.2, "#0f1f14", "#3d5a40", "#7dff6a", "#4a5248", "#2a302a", "#18241a", "#7dff6a", "#16261a"),
+  b("Frost Caverns", "ice", 0.8, "#1c3a55", "#bfefff", "#ffffff", "#c8e6f5", "#e6f6ff", "#d8eef8", "#e8fbff", "#2a5578"),
+  b("Ember Canyon", "canyon", 0.9, "#5a2416", "#7a3a20", "#ff9a3d", "#b8673e", "#8a4a2a", "#7a3a1e", "#ffb347", "#6e2a18"),
 ];
 
 export const biomeAt = (i: number) => BIOMES[i % BIOMES.length]!;
