@@ -86,7 +86,7 @@ export function Obstacles() {
       const active = KINDS.indexOf(biomeAt(run.biome).kind) * 4 + TYPES.indexOf(o.type);
       for (let k = 0; k < s.children.length; k++) s.children[k]!.visible = k === active;
       // rolling hazards (boulders, drums) spin as they come at the player
-      const roll = s.children[active]!.userData.roll as THREE.Object3D | undefined;
+      const roll = active >= 4 && o.type === "moving" ? s.children[active]!.children[0] : undefined;
       if (roll) roll.rotation.x = o.z * 0.9;
     });
   });
@@ -148,7 +148,7 @@ export function Obstacles() {
             <mesh geometry={g.rock} material={m.moss} position={[0, 2.5, 0]} scale={[0.7, 0.25, 0.8]} />
           </group>
           <group>{/* rolling boulder */}
-            <group position={[0, 1, 0]} ref={(el) => { if (el?.parent) el.parent.userData.roll = el; }}>
+            <group position={[0, 1, 0]}>
               <mesh geometry={g.rock} material={m.stone} scale={0.98} />
               <mesh geometry={g.rock} material={m.moss} position={[0, 0.7, 0.3]} scale={[0.5, 0.3, 0.5]} />
             </group>
@@ -172,7 +172,7 @@ export function Obstacles() {
             <mesh geometry={g.box} material={m.hazard} position={[0, 1.9, 0.92]} scale={[0.6, 0.4, 0.03]} />
           </group>
           <group>{/* rolling waste drum */}
-            <group position={[0, 0.75, 0]} ref={(el) => { if (el?.parent) el.parent.userData.roll = el; }}>
+            <group position={[0, 0.75, 0]}>
               <mesh geometry={g.cyl} material={m.hazard} rotation-z={Math.PI / 2} scale={[1.5, 1.8, 1.5]} />
               <mesh geometry={g.cyl} material={m.rust} rotation-z={Math.PI / 2} scale={[1.55, 0.25, 1.55]} />
             </group>
@@ -197,7 +197,7 @@ export function Obstacles() {
             <mesh geometry={g.rock} material={m.snow} position={[0, 2.45, 0]} scale={[1, 0.25, 1]} />
           </group>
           <group>{/* sliding ice chunk */}
-            <group position={[0, 0.9, 0]} ref={(el) => { if (el?.parent) el.parent.userData.roll = el; }}>
+            <group position={[0, 0.9, 0]}>
               <mesh geometry={g.rock} material={m.ice} scale={[0.95, 0.9, 0.95]} />
             </group>
           </group>
@@ -216,7 +216,7 @@ export function Obstacles() {
             <mesh geometry={g.rock} material={m.sand} position={[0.2, 0.4, 0.5]} scale={[0.7, 0.5, 0.7]} />
           </group>
           <group>{/* rolling lava rock */}
-            <group position={[0, 0.95, 0]} ref={(el) => { if (el?.parent) el.parent.userData.roll = el; }}>
+            <group position={[0, 0.95, 0]}>
               <mesh geometry={g.ball} material={m.redrock} scale={0.92} />
               <mesh geometry={g.ball} material={m.lava} scale={[0.95, 0.12, 0.95]} />
               <mesh geometry={g.ball} material={m.lava} scale={[0.12, 0.95, 0.95]} />
