@@ -7,7 +7,9 @@ import { run, type PowerType } from "../runtime";
 import { useGame } from "../store";
 import { computeScore, makeRow, minGap, type Row } from "../track/patterns";
 import { hitsObstacle } from "../collision/collision";
-import { biomeAt } from "../biomes/biomes";
+import { biomeAt, BIOMES } from "../biomes/biomes";
+import { GEM_SPAWN_CHANCE } from "../config";
+import { sfx } from "../audio/sfx";
 
 export const POWER_TIME: Record<PowerType, number> = { magnet: 10, x2: 12, jet: 6, shield: 0 };
 export const JET_Y = 6;
@@ -56,6 +58,11 @@ function spawnRow(z: number) {
     spawnPickup((open[Math.floor(Math.random() * open.length)] ?? 1) - 1, z - 6);
     return;
   }
+  if (open.length && !run.gem.active && Math.random() < GEM_SPAWN_CHANCE) {
+    run.gem.active = true; run.gem.pick = 0;
+    run.gem.x = ((open[Math.floor(Math.random() * open.length)] ?? 1) - 1) * LANE_W; run.gem.z = z - 8;
+    return;
+  }
   const lowLane = row.indexOf("low");
   if (lowLane >= 0 && Math.random() < 0.45) {
     for (let k = 0; k < 5; k++) spawnCoin((lowLane - 1) * LANE_W, 0.7 + Math.sin((k / 4) * Math.PI) * 1.2, z + 4 - k * 2);
@@ -83,13 +90,14 @@ export function GameLoop() {
     fpsAcc += raw; fpsFrames++;
     if (fpsAcc > 0.5) { if (g.debug) g.setFps(Math.round(fpsFrames / fpsAcc)); fpsAcc = 0; fpsFrames = 0; }
     if (run.warp > 0) run.warp = Math.max(0, run.warp - Math.min(raw, 0.05));
+    if (run.reviveFx > 0) run.reviveFx = Math.max(0, run.reviveFx - Math.min(raw, 0.05));
     if (g.phase !== "playing") return;
     const dt = Math.min(raw, 0.05);
 
     if (run.crashed) {
       run.crashT -= dt;
       run.speed *= Math.exp(-8 * dt);
-      if (run.crashT <= 0) g.end(computeScore(run.scoreDist, run.coins), run.coins);
+      if (run.crashT <= 0) g.offerSave(computeScore(run.scoreDist, run.coins), run.coins);
       return;
     }
 
@@ -114,6 +122,7 @@ export function GameLoop() {
       run.warp = 0.9;
       run.nextPortal += 400 + Math.random() * 300;
       g.showToast(biomeAt(run.biome).name);
+      if (g.discover(run.biome % BIOMES.length)) sfx.gem();
       for (const o of run.obstacles) if (o.z > -40) o.active = false;
     }
 
@@ -197,6 +206,15 @@ export function GameLoop() {
         else run[p.type] = POWER_TIME[p.type];
         if (p.type === "jet") sinceJetCoin = 0;
       }
+    }
+
+    // rare gem
+    const gm = run.gem;
+    if (gm.active) {
+      gm.z += move;
+      if (gm.pick > 0) { gm.pick += dt; if (gm.pick > 0.6) gm.active = false; }
+      else if (gm.z > DESPAWN_Z) gm.active = false;
+      else if (Math.abs(gm.z) < 1 && Math.abs(gm.x - run.x) < 1 && run.y < 2.5) { gm.pick = 0.0001; g.addGems(1); sfx.gem(); }
     }
 
     hudAcc += dt;

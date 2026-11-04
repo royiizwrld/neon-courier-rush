@@ -1,4 +1,5 @@
 import { SAFE_START, START_SPEED } from "./constants";
+import { REVIVE_CLEAR_AHEAD, REVIVE_INVULN } from "./config";
 import type { ObstacleType } from "./track/patterns";
 
 export type Action = "left" | "right" | "up" | "down";
@@ -19,6 +20,7 @@ export const run = {
   biome: 0, nextPortal: FIRST_PORTAL, warp: 0,
   // power-up timers (seconds left); shield is a single charge
   magnet: 0, x2: 0, jet: 0, shield: false,
+  gem: { active: false, x: 0, z: 0, pick: 0 }, reviveFx: 0,
   queue: [] as Action[],
   obstacles: Array.from({ length: 48 }, (): Obs => ({ active: false, type: "low", lane: 0, z: 0, vz: 0 })),
   coinPool: Array.from({ length: 200 }, (): Coin => ({ active: false, x: 0, y: 0, z: 0, pick: 0 })),
@@ -33,7 +35,18 @@ export function resetRun() {
     biome: 0, nextPortal: FIRST_PORTAL, warp: 0, magnet: 0, x2: 0, jet: 0, shield: false,
   });
   run.queue.length = 0;
+  run.gem.active = false; run.reviveFx = 0;
   for (const o of run.obstacles) o.active = false;
   for (const c of run.coinPool) { c.active = false; c.pick = 0; }
   for (const p of run.pickups) { p.active = false; p.pick = 0; }
+}
+
+/** Continue after a crash: keep score/coins/power timers, clear the road ahead, land safely, 3 s invulnerable. */
+export function reviveRun() {
+  run.crashed = false; run.crashT = 0;
+  for (const o of run.obstacles) if (o.active && o.z > -REVIVE_CLEAR_AHEAD) o.active = false;
+  if (run.nextRowZ > -REVIVE_CLEAR_AHEAD) run.nextRowZ = -REVIVE_CLEAR_AHEAD;
+  run.jet = 0; run.y = 0; run.vy = 0; run.grounded = true; run.slide = 0; run.slideQueued = false;
+  run.queue.length = 0;
+  run.invuln = REVIVE_INVULN; run.reviveFx = 1;
 }
