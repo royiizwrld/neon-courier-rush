@@ -16,7 +16,9 @@ import { FrameDriver } from "./loop/FrameDriver";
 import { BiomeSky } from "./biomes/BiomeSky";
 import { Portal } from "./portals/Portal";
 import { PowerUps } from "./powerups/PowerUps";
-import { DebugOverlay, GameOverScreen, WarpFlash, HUD, PauseScreen, SettingsScreen, StartScreen } from "./ui/Screens";
+import { AdaptiveDpr } from "./loop/AdaptiveDpr";
+import { Gem } from "./coins/Gem";
+import { DebugOverlay, SaveMeScreen, RevivingScreen, GameOverScreen, WarpFlash, HUD, PauseScreen, SettingsScreen, StartScreen } from "./ui/Screens";
 
 const SKY = "#120a2a";
 
@@ -36,7 +38,7 @@ export function Game() {
 
   return (
     <div className="game-root">
-      <Canvas frameloop="demand" dpr={[1, 2]} camera={{ position: [0, 3.6, 7], fov: 62, near: 0.1, far: 220 }} gl={{ antialias: true, powerPreference: "high-performance" }}>
+      <Canvas frameloop="demand" dpr={1} camera={{ position: [0, 3.6, 7], fov: 62, near: 0.1, far: 220 }} gl={{ antialias: true, powerPreference: "high-performance" }}>
         <color attach="background" args={[SKY]} />
         <fog attach="fog" args={[SKY, 35, 145]} />
         <ambientLight intensity={0.35} color="#8a7bff" />
@@ -48,6 +50,7 @@ export function Game() {
           <Lightformer intensity={1} position={[0, 8, 0]} rotation-x={Math.PI / 2} scale={[10, 10, 1]} />
         </Environment>
         <FrameDriver />
+        <AdaptiveDpr />
         <GameLoop />
         <CameraRig />
         <Track />
@@ -57,12 +60,15 @@ export function Game() {
         <Player />
         <Portal />
         <PowerUps />
+        <Gem />
         <BiomeSky />
       </Canvas>
       <div className="ui-layer">
         {phase === "start" && <StartScreen />}
-        {(phase === "playing" || phase === "paused") && <HUD />}
+        {(phase === "playing" || phase === "paused" || phase === "reviving") && <HUD />}
         {phase === "paused" && <PauseScreen />}
+        {phase === "saveme" && <SaveMeScreen />}
+        {phase === "reviving" && <RevivingScreen />}
         {phase === "over" && <GameOverScreen />}
         <WarpFlash />
         <SettingsScreen />
