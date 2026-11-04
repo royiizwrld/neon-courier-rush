@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useGame } from "../store";
-import { BIND_LABELS, keyLabel, toggleFullscreen, useSettings, type Bindable, type FpsCap } from "../settings";
+import { BIND_LABELS, keyLabel, toggleFullscreen, useSettings, type Bindable, type FpsCap, type UiSize } from "../settings";
+import { REVIVE_COUNTDOWN } from "../config";
+import { sfx } from "../audio/sfx";
+import { run } from "../runtime";
 import { installHelp, usePwa } from "../pwa";
 
 function useFullscreen() {
@@ -29,7 +32,7 @@ function ControlHints() {
 }
 
 export function StartScreen() {
-  const { best, totalCoins, start } = useGame();
+  const { best, totalCoins, gems, start } = useGame();
   const device = useSettings((s) => s.device);
   const setOpen = useSettings((s) => s.setOpen);
   const verb = device === "touch" ? "Tap" : device === "gamepad" ? "Press A" : "Click or press Enter";
@@ -45,6 +48,7 @@ export function StartScreen() {
         <div className="stat-row">
           <span>Best <b>{best}</b></span>
           <span className="coin-text">● {totalCoins}</span>
+          <span className="gem-text">◆ {gems}</span>
         </div>
         <ControlHints />
         <button className="btn-ghost btn-small" onClick={() => setOpen(true)}>Settings</button>
@@ -176,6 +180,14 @@ export function SettingsScreen() {
             </div>
           </div>
           {fsSupported() && <div className="row"><span>Fullscreen</span><button className="btn-ghost btn-small" onClick={toggleFullscreen}>{fs ? "Exit" : "Enter"}</button></div>}
+          <div className="row"><span>UI size</span>
+            <div className="seg">
+              {(["small", "medium", "large"] as UiSize[]).map((u) => (
+                <button key={u} className={s.uiSize === u ? "on" : ""} onClick={() => s.setUiSize(u)}>{u[0]!.toUpperCase() + u.slice(1)}</button>
+              ))}
+            </div>
+          </div>
+          <div className="row"><span>Confirm before spending gems</span><button className="btn-ghost btn-small" onClick={s.toggleConfirmGems}>{s.confirmGems ? "On" : "Off"}</button></div>
           <div className="row"><span>Sound</span><button className="btn-ghost btn-small" onClick={s.toggleMute}>{s.muted ? "Off" : "On"}</button></div>
         </section>
 
@@ -216,4 +228,93 @@ export function DebugOverlay() {
   const { debug, fps } = useGame();
   if (!debug) return null;
   return <div className="debug">FPS {fps}</div>;
+}
+
+const reducedMotion = () => typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/** Offered when a run would end: spend gems to continue. */
+export function SaveMeScreen() {
+  const { score, coins, gems, revivesThisRun, totalRevives, nextCost, revive, declineSave } = useGame();
+  const confirmGems = useSettings((s) => s.confirmGems);
+  const [left, setLeft] = useState(REVIVE_COUNTDOWN);
+  const [confirming, setConfirming] = useState(false);
+  const cost = nextCost() ?? 0;
+  const afford = gems >= cost;
+  useEffect(() => {
+    if (confirming) return;
+    const t0 = performance.now() - (REVIVE_COUNTDOWN - left) * 1000;
+    const id = setInterval(() => {
+      const l = Math.max(0, REVIVE_COUNTDOWN - (performance.now() - t0) / 1000);
+      setLeft(l);
+      if (l <= 0) { clearInterval(id); declineSave(); }
+    }, 50);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [confirming]);
+  const go = () => {
+    if (!afford) return;
+    if (cost > 0 && confirmGems && !confirming) { setConfirming(true); return; }
+    if (revive()) sfx.rewind();
+  };
+  const R = 44, C = 2 * Math.PI * R;
+  const mult = run.x2 > 0 ? 2 : 1;
+  return (
+    <div className="screen screen-dim saveme" role="dialog" aria-label="Save me">
+      <h2 className="screen-heading">Save Me!</h2>
+      <div className="saveme-ring">
+        <svg viewBox="0 0 100 100" aria-hidden>
+          <circle cx="50" cy="50" r={R} className="ring-bg" />
+          <circle cx="50" cy="50" r={R} className="ring-fg" strokeDasharray={C} strokeDashoffset={C * (1 - left / REVIVE_COUNTDOWN)} />
+        </svg>
+        <span>{Math.ceil(left)}</span>
+      </div>
+      <div className="result-card">
+        <div><span>Score</span><b>{score}</b></div>
+        <div><span>Multiplier</span><b>x{mult}</b></div>
+        <div><span>Coins</span><b className="coin-text">● {coins}</b></div>
+        <div><span>Your gems</span><b className="gem-text">◆ {gems}</b></div>
+      </div>
+      {confirming ? (
+        <div className="confirm-box">
+          <p>Spend <b className="gem-text">◆ {cost}</b> to continue?</p>
+          <div className="confirm-row">
+            <button className="btn-neon btn-small" onClick={go}>Yes, continue</button>
+            <button className="btn-ghost btn-small" onClick={() => setConfirming(false)}>Back</button>
+          </div>
+        </div>
+      ) : afford ? (
+        <button className="btn-neon btn-continue" onClick={go}>
+          Continue · {cost === 0 ? "Free today" : <span className="gem-dark">◆ {cost}</span>}
+        </button>
+      ) : (
+        <div className="confirm-box">
+          <p className="not-enough">Not enough gems (need ◆ {cost})</p>
+          <p className="note">Earn gems by discovering new tracks and grabbing rare glowing gems on the road. Mission sets and daily rewards will give gems once they arrive.</p>
+        </div>
+      )}
+      <button className="btn-ghost btn-small" onClick={declineSave}>No thanks</button>
+      <p className="note">Revive {revivesThisRun + 1} of 3 · used {totalRevives} total</p>
+    </div>
+  );
+}
+
+/** Light burst + 3-2-1 before play resumes (after revive or unpause). */
+export function RevivingScreen() {
+  const { reviveKey, finishRevive } = useGame();
+  const [n, setN] = useState(3);
+  useEffect(() => {
+    setN(3); sfx.tick();
+    let k = 3;
+    const id = setInterval(() => {
+      k--; if (k <= 0) { clearInterval(id); finishRevive(); return; }
+      setN(k); sfx.tick();
+    }, reducedMotion() ? 600 : 700);
+    return () => clearInterval(id);
+  }, [reviveKey, finishRevive]);
+  return (
+    <div className="screen reviving">
+      {run.reviveFx > 0 && !reducedMotion() && <div className="revive-burst" key={reviveKey} />}
+      <div className="countdown" key={n}>{n}</div>
+    </div>
+  );
 }

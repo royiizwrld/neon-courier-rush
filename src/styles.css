@@ -153,6 +153,7 @@
   --font-display: "Bebas Neue", sans-serif;
   --font-ui: "Barlow", sans-serif;
 }
+html { font-size: calc(16px * var(--ui-scale, 1)); }
 html, body { height: 100%; overflow: hidden; overscroll-behavior: none; touch-action: none; background: var(--night); }
 body { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; font-family: var(--font-ui); }
 .game-root { position: fixed; inset: 0; touch-action: none; }
@@ -160,12 +161,12 @@ body { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color
 .ui-layer > * { pointer-events: auto; }
 .screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem;
   padding: env(safe-area-inset-top) 1.5rem env(safe-area-inset-bottom); background: none; border: 0; color: inherit; font: inherit; animation: fade-in .3s ease; }
-.screen-start { justify-content: space-between; padding-top: calc(env(safe-area-inset-top) + 12vh); padding-bottom: calc(env(safe-area-inset-bottom) + 6vh);
+.screen-start { justify-content: space-between; padding-top: calc(env(safe-area-inset-top) + 9dvh); padding-bottom: calc(env(safe-area-inset-bottom) + 5dvh);
   background: linear-gradient(to bottom, oklch(0.17 0.07 295 / 0.75), transparent 45%, oklch(0.17 0.07 295 / 0.8)); cursor: pointer; }
 .screen-dim { background: oklch(0.12 0.06 295 / 0.78); backdrop-filter: blur(4px); }
 .title-block { text-align: center; }
 .kicker { font-weight: 700; letter-spacing: .3em; text-transform: uppercase; font-size: .8rem; color: var(--coin); }
-.game-title { font-family: var(--font-display); font-size: clamp(4.5rem, 22vw, 9rem); line-height: .85; color: var(--neon-pink);
+.game-title { font-family: var(--font-display); font-size: clamp(3.2rem, 17vw, 8rem); line-height: .85; color: var(--neon-pink);
   text-shadow: 0 0 12px var(--neon-pink), 0 0 40px oklch(0.68 0.25 0 / .6); }
 .tap-pulse { font-family: var(--font-display); font-size: 2.2rem; letter-spacing: .1em; color: var(--neon-cyan); text-shadow: 0 0 14px var(--neon-cyan); animation: pulse 1.4s ease-in-out infinite; }
 .stat-row { display: flex; gap: 2rem; font-size: 1.1rem; }
@@ -225,13 +226,13 @@ body { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color
 
 /* Landscape / wide screens: scale by height so nothing gets oversized */
 @media (min-aspect-ratio: 1/1) {
-  .game-title { font-size: clamp(3.5rem, 17vh, 10rem); }
-  .screen-start { padding-top: calc(env(safe-area-inset-top) + 8vh); padding-bottom: calc(env(safe-area-inset-bottom) + 5vh); }
-  .tap-pulse { font-size: clamp(1.6rem, 4.2vh, 2.6rem); }
-  .screen-heading { font-size: clamp(3rem, 10vh, 5.5rem); }
-  .screen { gap: clamp(.6rem, 2vh, 1.2rem); }
-  .btn-neon, .btn-ghost:not(.btn-small) { font-size: clamp(1.3rem, 3.4vh, 1.9rem); padding: clamp(.5rem, 1.4vh, .9rem) 1.5rem; }
-  .hud-score { font-size: clamp(2rem, 6vh, 3.4rem); }
+  .game-title { font-size: clamp(3.5rem, 17dvh, 10rem); }
+  .screen-start { padding-top: calc(env(safe-area-inset-top) + 7dvh); padding-bottom: calc(env(safe-area-inset-bottom) + 4dvh); }
+  .tap-pulse { font-size: clamp(1.6rem, 4.2dvh, 2.6rem); }
+  .screen-heading { font-size: clamp(3rem, 10dvh, 5.5rem); }
+  .screen { gap: clamp(.6rem, 2dvh, 1.2rem); }
+  .btn-neon, .btn-ghost:not(.btn-small) { font-size: clamp(1.3rem, 3.4dvh, 1.9rem); padding: clamp(.5rem, 1.4dvh, .9rem) 1.5rem; }
+  .hud-score { font-size: clamp(2rem, 5dvh, 3.4rem); }
 }
 @media (max-height: 520px) and (min-aspect-ratio: 1/1) {
   .hint { display: none; }
@@ -242,8 +243,55 @@ body { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color
 .powers { display: flex; gap: .4rem; margin-top: .5rem; }
 .power { position: relative; width: 2.6rem; height: 2.6rem; border-radius: .7rem; background: var(--glass); border: 1px solid oklch(0.85 0.15 205 / .5); display: grid; place-items: center; overflow: hidden; font-size: 1.2rem; font-weight: 700; color: var(--coin); }
 .power i { position: absolute; left: 0; bottom: 0; height: 4px; background: var(--neon-cyan); box-shadow: 0 0 8px var(--neon-cyan); transition: width .1s linear; }
-.biome-toast { position: absolute; left: 50%; top: 22%; transform: translateX(-50%); text-align: center; font-family: var(--font-display); font-size: clamp(2.2rem, 7vh, 3.6rem); color: var(--neon-pink); text-shadow: 0 0 18px var(--neon-pink); pointer-events: none; white-space: nowrap; animation: toast 2.6s ease forwards; }
+.biome-toast { position: absolute; left: 50%; top: 22%; transform: translateX(-50%); text-align: center; font-family: var(--font-display); font-size: clamp(2.2rem, 7dvh, 3.6rem); color: var(--neon-pink); text-shadow: 0 0 18px var(--neon-pink); pointer-events: none; white-space: nowrap; animation: toast 2.6s ease forwards; }
 .biome-toast small { display: block; font-size: .4em; letter-spacing: .3em; color: var(--coin); text-shadow: none; }
 @keyframes toast { 0% { opacity: 0; transform: translate(-50%, 20px) scale(.9); } 12%, 75% { opacity: 1; transform: translate(-50%, 0) scale(1); } 100% { opacity: 0; transform: translate(-50%, -10px); } }
 .warp-flash { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle, oklch(1 0 0 / .95), oklch(0.85 0.15 205 / .6) 40%, transparent 75%); animation: warp .9s ease-out forwards; }
 @keyframes warp { 0% { opacity: 1; } 100% { opacity: 0; } }
+
+/* ---------- Mobile scaling, safe areas, scroll containers ---------- */
+.game-root { height: 100dvh; }
+.screen { padding-left: max(1rem, env(safe-area-inset-left)); padding-right: max(1rem, env(safe-area-inset-right)); }
+.screen-dim:not(.settings-screen) { overflow-y: auto; justify-content: safe center; }
+.hud { padding: calc(env(safe-area-inset-top) + .6rem) max(.75rem, env(safe-area-inset-right)) 0 max(.75rem, env(safe-area-inset-left)); }
+.icon-btn, .btn-neon, .btn-ghost, .seg button, .key-btn { min-height: 44px; }
+.icon-btn { min-width: 44px; }
+.settings-screen { justify-content: center; }
+.settings-panel { max-height: 85dvh; overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y; margin: 0; }
+.screen-dim, .settings-screen { touch-action: pan-y; }
+.btn-neon, .btn-ghost { min-width: min(15rem, 80vw); }
+.gem-text { color: oklch(0.86 0.18 165); text-shadow: 0 0 8px oklch(0.86 0.18 165 / .6); font-weight: 700; }
+.gem-dark { color: var(--night); }
+@media (max-width: 480px) {
+  .hud-score { font-size: 2rem; }
+  .hud-coins { font-size: 1rem; }
+  .power { width: 2.2rem; height: 2.2rem; font-size: 1rem; }
+  .screen-heading { font-size: clamp(2.6rem, 13vw, 3.6rem); }
+  .tap-pulse { font-size: 1.7rem; }
+  .btn-neon, .btn-ghost { font-size: 1.35rem; padding: .55rem 1.2rem; }
+  .btn-small { font-size: 1rem; }
+  .result-card { min-width: min(15rem, 84vw); padding: .7rem 1rem; }
+  .result-card b { font-size: 1.3rem; }
+  .stat-row { gap: 1.2rem; font-size: 1rem; }
+  .screen { gap: .7rem; }
+  .settings-panel .row { font-size: .9rem; gap: .5rem; }
+  .seg button { padding: .3rem .55rem; font-size: .8rem; }
+  .key-btn { min-width: 6rem; }
+  .install-banner { font-size: .8rem; max-width: 94vw; white-space: normal; }
+}
+/* Save Me */
+.saveme { gap: .8rem; }
+.saveme-ring { position: relative; width: clamp(5rem, 22vw, 7rem); aspect-ratio: 1; }
+.saveme-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: oklch(0.85 0.15 205 / .2); stroke-width: 8; }
+.ring-fg { fill: none; stroke: var(--neon-pink); stroke-width: 8; stroke-linecap: round; filter: drop-shadow(0 0 6px var(--neon-pink)); }
+.saveme-ring span { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--font-display); font-size: 2.4rem; color: var(--neon-cyan); }
+.btn-continue { font-size: 1.9rem; padding: .9rem 2rem; }
+.confirm-box { display: grid; gap: .5rem; text-align: center; max-width: 22rem; }
+.confirm-row { display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; }
+.not-enough { font-weight: 700; color: var(--neon-pink); }
+.reviving { pointer-events: none; }
+.countdown { font-family: var(--font-display); font-size: clamp(5rem, 22vw, 9rem); color: var(--neon-cyan); text-shadow: 0 0 24px var(--neon-cyan); animation: count .7s ease-out; }
+@keyframes count { from { transform: scale(1.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.revive-burst { position: absolute; inset: 0; background: radial-gradient(circle at 50% 70%, oklch(1 0 0 / .9), oklch(0.86 0.18 165 / .5) 30%, transparent 65%); animation: warp 1s ease-out forwards; }
+@media (prefers-reduced-motion: reduce) { .countdown, .tap-pulse { animation: none; } }

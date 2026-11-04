@@ -3,6 +3,9 @@ import { create } from "zustand";
 export type Bindable = "left" | "right" | "jump" | "slide" | "pause" | "mute" | "fullscreen";
 export type Device = "touch" | "keyboard" | "gamepad";
 export type FpsCap = 0 | 30 | 60;
+export type UiSize = "small" | "medium" | "large";
+export const UI_SCALE: Record<UiSize, number> = { small: 0.82, medium: 1, large: 1.18 };
+function applyUi(u: UiSize) { if (typeof document !== "undefined") document.documentElement.style.setProperty("--ui-scale", String(UI_SCALE[u])); }
 
 export const DEFAULT_KEYS: Record<Bindable, string[]> = {
   left: ["arrowleft", "a"],
@@ -20,7 +23,8 @@ export const BIND_LABELS: Record<Bindable, string> = {
 };
 
 interface SettingsState {
-  fpsCap: FpsCap; muted: boolean; keys: Record<Bindable, string[]>;
+  fpsCap: FpsCap; muted: boolean; uiSize: UiSize; confirmGems: boolean;
+  setUiSize: (u: UiSize) => void; toggleConfirmGems: () => void; keys: Record<Bindable, string[]>;
   device: Device; open: boolean; rebinding: Bindable | null;
   setFpsCap: (f: FpsCap) => void; toggleMute: () => void; setDevice: (d: Device) => void;
   setOpen: (o: boolean) => void; startRebind: (b: Bindable | null) => void;
@@ -28,12 +32,12 @@ interface SettingsState {
 }
 
 const KEY = "neon-courier:settings";
-function persist(s: Pick<SettingsState, "fpsCap" | "muted" | "keys">) {
-  try { localStorage.setItem(KEY, JSON.stringify({ fpsCap: s.fpsCap, muted: s.muted, keys: s.keys })); } catch { /* ignore */ }
+function persist(s: Pick<SettingsState, "fpsCap" | "muted" | "keys" | "uiSize" | "confirmGems">) {
+  try { localStorage.setItem(KEY, JSON.stringify({ fpsCap: s.fpsCap, muted: s.muted, keys: s.keys, uiSize: s.uiSize, confirmGems: s.confirmGems })); } catch { /* ignore */ }
 }
 
 export const useSettings = create<SettingsState>((set, get) => ({
-  fpsCap: 0, muted: false, keys: DEFAULT_KEYS, device: "keyboard", open: false, rebinding: null,
+  fpsCap: 0, muted: false, uiSize: "medium", confirmGems: true, keys: DEFAULT_KEYS, device: "keyboard", open: false, rebinding: null,
   load: () => {
     const coarse = typeof matchMedia !== "undefined" && matchMedia("(pointer: coarse)").matches;
     let d: Partial<SettingsState> = {};
@@ -43,8 +47,14 @@ export const useSettings = create<SettingsState>((set, get) => ({
       fpsCap: d.fpsCap === 30 || d.fpsCap === 60 ? d.fpsCap : 0,
       muted: !!d.muted,
       keys: { ...DEFAULT_KEYS, ...(d.keys ?? {}) },
+      confirmGems: d.confirmGems !== false,
     });
+    const small = Math.min(window.innerWidth, window.innerHeight) < 500;
+    const ui: UiSize = d.uiSize === "small" || d.uiSize === "medium" || d.uiSize === "large" ? d.uiSize : small ? "small" : "medium";
+    set({ uiSize: ui }); applyUi(ui);
   },
+  setUiSize: (uiSize) => { set({ uiSize }); applyUi(uiSize); persist(get()); },
+  toggleConfirmGems: () => { set({ confirmGems: !get().confirmGems }); persist(get()); },
   setFpsCap: (fpsCap) => { set({ fpsCap }); persist(get()); },
   toggleMute: () => { set({ muted: !get().muted }); persist(get()); },
   setDevice: (device) => get().device !== device && set({ device }),
