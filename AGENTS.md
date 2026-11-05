@@ -16,3 +16,5 @@
 - Row generation must go through `makeRow`/`isFair` in `track/patterns.ts`, which guarantee an open lane; keep its tests passing.
 - Input goes through `input/input.ts` (keyboard via remappable bindings in `settings.ts`, touch/mouse swipe, gamepad polling); Canvas uses frameloop="demand" driven by `loop/FrameDriver` so the FPS cap works.
 - `vite.config.ts` strips dev-only `data-tsd-source` props from `src/game/` files, because react-three-fiber crashes on dashed props it cannot resolve; keep it while the game uses R3F.
+- Camera presets per device and Save Me/gem economy values live in `src/game/config.ts` (tested in `config.test.ts`); tune there, not in components — one place for balance numbers.
+- Game UI sizes use rem scaled by the `--ui-scale` root variable (Settings → UI size) and dvh units; keep new UI in rem so it scales.
