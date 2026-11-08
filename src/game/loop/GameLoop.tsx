@@ -9,7 +9,16 @@ import { computeScore, makeRow, minGap, type Row } from "../track/patterns";
 import { hitsObstacle } from "../collision/collision";
 import { biomeAt, BIOMES } from "../biomes/biomes";
 import { GEM_SPAWN_CHANCE } from "../config";
-import { sfx } from "../audio/sfx";
+import { sfx, music } from "../audio/sfx";
+
+if (typeof window !== "undefined") {
+  useGame.subscribe((s, p) => {
+    if (s.phase === p.phase) return;
+    if (s.phase === "playing" || s.phase === "reviving") music.play(run.biome);
+    else music.stop();
+    if (s.phase === "over") sfx.gameOver();
+  });
+}
 
 export const POWER_TIME: Record<PowerType, number> = { magnet: 10, x2: 12, jet: 6, shield: 0 };
 export const JET_Y = 6;
@@ -76,11 +85,11 @@ function spawnRow(z: number) {
 function crash() {
   if (run.invuln > 0 || run.jet > 0) return;
   if (run.shield) {
-    run.shield = false; run.invuln = 1.2;
+    run.shield = false; run.invuln = 1.2; sfx.shieldHit();
     if (navigator.vibrate) navigator.vibrate(60);
     return;
   }
-  run.crashed = true; run.crashT = 0.8;
+  run.crashed = true; run.crashT = 0.8; sfx.crash();
   if (navigator.vibrate) navigator.vibrate(120);
 }
 
@@ -121,7 +130,7 @@ export function GameLoop() {
       run.biome++;
       run.warp = 0.9;
       run.nextPortal += 400 + Math.random() * 300;
-      g.showToast(biomeAt(run.biome).name);
+      g.showToast(biomeAt(run.biome).name); sfx.portal(); music.setWorld(run.biome);
       if (g.discover(run.biome % BIOMES.length)) sfx.gem();
       for (const o of run.obstacles) if (o.z > -40) o.active = false;
     }
@@ -129,15 +138,15 @@ export function GameLoop() {
     // input
     while (run.queue.length) {
       const a = run.queue.shift()!;
-      if (a === "left") run.lane = Math.max(-1, run.lane - 1);
-      else if (a === "right") run.lane = Math.min(1, run.lane + 1);
+      if (a === "left") { if (run.lane > -1) sfx.lane(); run.lane = Math.max(-1, run.lane - 1); }
+      else if (a === "right") { if (run.lane < 1) sfx.lane(); run.lane = Math.min(1, run.lane + 1); }
       else if (run.jet > 0) continue;
       else if (a === "up") {
-        if (run.grounded) { run.vy = JUMP_V; run.grounded = false; run.slide = 0; }
+        if (run.grounded) { run.vy = JUMP_V; run.grounded = false; run.slide = 0; sfx.jump(); }
         else run.jumpBuffer = JUMP_BUFFER;
       } else if (a === "down") {
         if (!run.grounded) { run.vy = Math.min(run.vy, FAST_DROP_V); run.slideQueued = true; }
-        else run.slide = SLIDE_TIME;
+        else { run.slide = SLIDE_TIME; sfx.slide(); }
       }
     }
 
@@ -153,8 +162,9 @@ export function GameLoop() {
       run.jumpBuffer -= dt;
       if (run.y <= 0) {
         run.y = 0; run.vy = 0; run.grounded = true;
-        if (run.jumpBuffer > 0) { run.vy = JUMP_V; run.grounded = false; run.jumpBuffer = 0; }
-        else if (run.slideQueued) run.slide = SLIDE_TIME;
+        if (run.jumpBuffer > 0) { run.vy = JUMP_V; run.grounded = false; run.jumpBuffer = 0; sfx.jump(); }
+        else if (run.slideQueued) { run.slide = SLIDE_TIME; sfx.slide(); }
+        else sfx.land();
         run.slideQueued = false;
       }
     }
@@ -191,7 +201,7 @@ export function GameLoop() {
         c.x += (run.x - c.x) * pull; c.y += (py - c.y) * pull; c.z += (0 - c.z) * pull * 0.5;
       }
       if (Math.abs(c.z) < 0.9 && Math.abs(c.x - run.x) < 0.9 && Math.abs(c.y - py) < 1.2) {
-        c.pick = 0.0001; run.coins++;
+        c.pick = 0.0001; run.coins++; sfx.coin();
       }
     }
     // power-ups
@@ -201,7 +211,7 @@ export function GameLoop() {
       if (p.pick > 0) { p.pick += dt; if (p.pick > 0.4) p.active = false; continue; }
       if (p.z > DESPAWN_Z) { p.active = false; continue; }
       if (Math.abs(p.z) < 1 && Math.abs(p.x - run.x) < 1 && run.y < 2.5) {
-        p.pick = 0.0001;
+        p.pick = 0.0001; sfx.power();
         if (p.type === "shield") run.shield = true;
         else run[p.type] = POWER_TIME[p.type];
         if (p.type === "jet") sinceJetCoin = 0;
